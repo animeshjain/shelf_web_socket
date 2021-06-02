@@ -18,7 +18,7 @@ Map<String, String> get _handshakeHeaders => {
 
 void main() {
   test('can communicate with a dart:io WebSocket client', () async {
-    final server = await shelf_io.serve(webSocketHandler((webSocket) {
+    final server = await shelf_io.serve(webSocketHandler((webSocket, _, __) {
       webSocket.sink.add('hello!');
       webSocket.stream.first.then((request) {
         expect(request, equals('ping'));
@@ -51,7 +51,7 @@ void main() {
 
   test('negotiates the sub-protocol', () async {
     final server = await shelf_io.serve(
-        webSocketHandler((webSocket, protocol) {
+        webSocketHandler((webSocket, protocol, _) {
           expect(protocol, equals('two'));
           webSocket.sink.close();
         }, protocols: ['three', 'two', 'x']),
@@ -69,7 +69,7 @@ void main() {
   });
 
   test('handles protocol header without allowed protocols', () async {
-    final server = await shelf_io.serve(webSocketHandler((webSocket) {
+    final server = await shelf_io.serve(webSocketHandler((webSocket, _, __) {
       webSocket.sink.close();
     }), 'localhost', 0);
 
@@ -84,7 +84,7 @@ void main() {
   });
 
   test('allows two argument callbacks without protocols', () async {
-    final server = await shelf_io.serve(webSocketHandler((webSocket, protocol) {
+    final server = await shelf_io.serve(webSocketHandler((webSocket, protocol, _) {
       expect(protocol, isNull);
       webSocket.sink.close();
     }), 'localhost', 0);
@@ -104,7 +104,7 @@ void main() {
     late Uri url;
     setUp(() async {
       server = await shelf_io.serve(
-          webSocketHandler((webSocket) {
+          webSocketHandler((webSocket, _, __) {
             webSocket.sink.close();
           }, allowedOrigins: ['pub.dartlang.org', 'GoOgLe.CoM']),
           'localhost',
@@ -145,7 +145,7 @@ void main() {
 
   // Regression test for issue 21894.
   test('allows a Connection header with multiple values', () async {
-    final server = await shelf_io.serve(webSocketHandler((webSocket) {
+    final server = await shelf_io.serve(webSocketHandler((webSocket, _, __) {
       webSocket.sink.close();
     }), 'localhost', 0);
 
@@ -160,7 +160,7 @@ void main() {
     late HttpServer server;
     late Uri url;
     setUp(() async {
-      server = await shelf_io.serve(webSocketHandler((_) {
+      server = await shelf_io.serve(webSocketHandler((_, __, ___) {
         fail('should not create a WebSocket');
       }), 'localhost', 0);
       url = Uri.http('localhost:${server.port}', '');
