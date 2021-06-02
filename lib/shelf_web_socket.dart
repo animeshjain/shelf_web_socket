@@ -46,7 +46,7 @@ Handler webSocketHandler(Function onConnection,
     String? contextHeader}) {
   if (onConnection is! void Function(Null, Null)) {
     final innerOnConnection = onConnection;
-    onConnection = (webSocket, _) => innerOnConnection(webSocket);
+    onConnection = (webSocket, _, __) => innerOnConnection(webSocket);
   }
 
   return WebSocketHandler(
