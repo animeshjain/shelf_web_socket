@@ -21,8 +21,15 @@ class WebSocketHandler {
   /// The ping interval used for verifying connection, or `null`.
   final Duration? _pingInterval;
 
-  WebSocketHandler(this._onConnection, this._protocols, this._allowedOrigins,
-      this._pingInterval);
+  final String? _contextHeader;
+
+  WebSocketHandler(
+    this._onConnection,
+    this._protocols,
+    this._allowedOrigins,
+    this._pingInterval,
+    this._contextHeader,
+  );
 
   /// The [Handler].
   Response handle(Request request) {
@@ -53,6 +60,11 @@ class WebSocketHandler {
     final key = request.headers['Sec-WebSocket-Key'];
     if (key == null) return _badRequest('missing Sec-WebSocket-Key header.');
 
+    String? contextValue;
+    if (_contextHeader != null) {
+      contextValue = request.headers[_contextHeader];
+    }
+
     if (!request.canHijack) {
       throw ArgumentError('webSocketHandler may only be used with a server '
           'that supports request hijacking.');
@@ -79,7 +91,10 @@ class WebSocketHandler {
       sink.add('\r\n');
 
       _onConnection(
-          WebSocketChannel(channel, pingInterval: _pingInterval), protocol);
+        WebSocketChannel(channel, pingInterval: _pingInterval),
+        protocol,
+        contextValue,
+      );
     });
   }
 
